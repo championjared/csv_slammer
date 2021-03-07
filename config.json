@@ -1,0 +1,18 @@
+{
+    "mapped_fields": [
+        {
+            "input": ["pid","some","SKU"],
+            "output": "id"
+        },
+        {
+            "input": ["name", "arbitrary"],
+            "output": "product_name"
+        },
+        {
+            "input": ["cost","dollarydoos","fields"],
+            "output": "price"
+        }
+    ],
+    "output_file": "out.csv",
+    "input_folder": "./in"
+}
