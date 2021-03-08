@@ -1,4 +1,5 @@
 import encoding.csv
+import encoding.utf8
 import os
 import json
 
@@ -34,6 +35,7 @@ fn index_of(str_list []string, values []string) ?int {
     return error('value in $values not found')
 }
 
+
 fn main() {
 
     // read runtime config
@@ -56,6 +58,9 @@ fn main() {
         filepath := '$config.input_folder/$filename'
         log('CSV','Reading $filepath')
         data := os.read_file(filepath) ?
+        if utf8.validate_str(data){
+            println('Valid UTF-8 encoding')
+        }
         // parse csv logic
         mut parser := csv.new_reader(data.str())
         mut header_row := true
@@ -63,13 +68,9 @@ fn main() {
         
         for {
             line := parser.read() or { break }
-            println(line)
             
-
             if header_row {
-
                 header_row = false
-                //row_index := index_of(line,["pid","some","SKU"]) ?
 
                 for column in config.mapped_fields {
                     index_pos := index_of(line, column.input) or {
@@ -82,30 +83,31 @@ fn main() {
                         position: index_pos
                         }
                 }      
-                //log('HEADER: $filename:', header_col_index.str())
 
             } else { // else create data row
-                //log('DATA_ROW: $filename:', line.str())
                 mut data_row := []string{}
                 for col_index in header_col_index {
-                    test_line := line[col_index.position]
-                    //println('file: $filename data line: $test_line')
                     data_row << line[col_index.position]
                 }
                 output_data << data_row
             } 
-                // add index to row  
-            //println('output data: $output_data')
         }
 
-        
-        //log('CSV',data)
     } // end file loop
-    
-    // test out
-    mut output := os.create('./out/$config.output_file') ?
-    output.write('tests'.bytes()) ?
-    output.close()
+
+    mut output := csv.new_writer() 
+
+    // header
+    output.write(config.mapped_fields.map(it.output)) ?
+    for row in output_data {
+        output.write(row) ?
+    }
+
+    output_str := output.str()
+    log('OUTPUT', 'writing output to ./out/$config.output_file')
+    mut output_file := os.create('./out/$config.output_file') ?
+    output_file.write(output_str.bytes()) ?
+    output_file.close()
 
 }
 
