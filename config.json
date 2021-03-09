@@ -10,7 +10,7 @@
         },
         {
             "input": ["cost","dollarydoos","fields"],
-            "output": "price"
+            "output": "Qty In Stock (_STORE NAME_)"
         }
     ],
     "output_file": "out.csv",

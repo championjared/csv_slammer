@@ -56,13 +56,20 @@ fn main() {
     mut output_data := [][]string{}
     for filename in input_csv {
         filepath := '$config.input_folder/$filename'
-        log('CSV','Reading $filepath')
+        log('CSV','Parsing $filepath')
         data := os.read_file(filepath) ?
         if utf8.validate_str(data){
             println('Valid UTF-8 encoding')
         }
+
+        // if last character is not newline, append
+        mut data_str := data.str()
+        if data_str[data_str.len-1] != 10 {
+            data_str = data_str+'\n'
+        }
+        log('CSV', 'start parsing of `$filename`')
         // parse csv logic
-        mut parser := csv.new_reader(data.str())
+        mut parser := csv.new_reader(data_str)
         mut header_row := true
         mut header_col_index := []ColIndex{}
         
@@ -71,7 +78,7 @@ fn main() {
             
             if header_row {
                 header_row = false
-
+                log('CSV', 'parsing header row')
                 for column in config.mapped_fields {
                     index_pos := index_of(line, column.input) or {
                         panic('Column name for $filepath not found in input: $column.input for output: $column.output')
@@ -96,7 +103,7 @@ fn main() {
     } // end file loop
 
     mut output := csv.new_writer() 
-
+    log('OUTPUT', 'building output csv file')
     // header
     output.write(config.mapped_fields.map(it.output)) ?
     for row in output_data {

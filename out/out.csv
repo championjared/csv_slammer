@@ -1,4 +1,4 @@
-id,product_name,price
+id,product_name,Qty In Stock (_STORE NAME_)
 0,abc,13.1
 1,def,10.0
 2,ghi,11.0
